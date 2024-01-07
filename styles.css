@@ -1,0 +1,94 @@
+:root {
+  --ff: Calibri, "Trebuchet MS", sans-serif;
+  --bg-primary: #191922;
+  --bg-secondary: #2b2b34;
+  --text-primary: #ffffff;
+  --text-secondary: #686d81;
+  --accent: #386fd4;
+  --border: #464650;
+
+  --fs-1: 2rem;
+  --fs-3: 0.8rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  font: inherit;
+  font-family: var(--ff);
+}
+button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+nav {
+  background-color: var(--bg-secondary);
+  padding: 10px 30px;
+  display: flex;
+  justify-content: space-between;
+}
+#heading {
+  font-size: var(--fs-1);
+  font-weight: bold;
+}
+.btn {
+  font-size: var(--fs-3);
+  padding-inline: 20px;
+  border-radius: 50px;
+  text-align: center;
+}
+.btn:hover {
+  opacity: 70%;
+}
+.create-task-btn {
+  background-color: var(--accent);
+  min-height: 40px;
+}
+.root {
+  display: flex;
+}
+
+#task-input-form {
+  align-self: center;
+  width: 350px;
+  background-color: var(--bg-secondary);
+  display: flex;
+  padding: 10px;
+  margin: 10px;
+  flex-direction: column;
+  gap: 10px;
+}
+#task-input-form > form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: var(--fs-3);
+}
+input,
+textarea {
+  outline: none;
+  border: none;
+  padding: 3px;
+  color: var(--text-primary);
+  background-color: var(--border);
+}
