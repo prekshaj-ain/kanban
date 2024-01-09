@@ -43,14 +43,21 @@ class TaskInput{
             return [title,description,+people];
         }
     }
+    private clearInfo(): void {
+        this.titleInputElement.value = "";
+        this.descriptionInputElement.value = "";
+        this.peopleInputElement.value = "";
+    }
     @Autobind
     private submitHandler(event : Event){
         event.preventDefault();
         const info = this.gatherTaskInfo();
         if(Array.isArray(info)){
             console.log(info);
+            this.clearInfo();
         }
-        
+
+
     }
     private configure(){
         this.element.addEventListener('submit', this.submitHandler)
