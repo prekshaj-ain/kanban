@@ -32,10 +32,25 @@ class TaskInput{
         this.configure();
         this.attach();
     }
+    private gatherTaskInfo() : [string,string,number] | void{
+        const title = this.titleInputElement.value;
+        const description = this.descriptionInputElement.value;
+        const people = this.peopleInputElement.value;
+        if(title.trim().length == 0 || description.trim().length == 0 || people.trim().length == 0){
+            alert('Input is not valid');
+            return;
+        }else{
+            return [title,description,+people];
+        }
+    }
     @Autobind
     private submitHandler(event : Event){
         event.preventDefault();
-        console.log(this.titleInputElement.value);
+        const info = this.gatherTaskInfo();
+        if(Array.isArray(info)){
+            console.log(info);
+        }
+        
     }
     private configure(){
         this.element.addEventListener('submit', this.submitHandler)
