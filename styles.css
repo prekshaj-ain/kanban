@@ -58,13 +58,19 @@ nav {
   background-color: var(--accent);
   min-height: 40px;
 }
-.root {
+#app {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+#root {
   display: flex;
 }
 
 #task-input-form {
   align-self: center;
-  width: 350px;
+  max-width: 350px;
+  width: calc(100vw - 20px);
   background-color: var(--bg-secondary);
   display: flex;
   padding: 10px;
@@ -91,4 +97,30 @@ textarea {
   padding: 3px;
   color: var(--text-primary);
   background-color: var(--border);
+}
+#board {
+  display: flex;
+  gap: 10px;
+}
+.tasks {
+  /* border: 1px solid var(--border); */
+  border-radius: 30px;
+  min-width: 250px;
+  padding: 10px;
+  font-size: var(--fs-3);
+}
+.tasks > header {
+  padding: 10px;
+}
+
+.customized-scrollbar {
+  overflow: auto;
+}
+.customized-scrollbar::-webkit-scrollbar {
+  width: 3px;
+  height: 5px;
+  background-color: var(--bg-secondary);
+}
+.customized-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
 }
