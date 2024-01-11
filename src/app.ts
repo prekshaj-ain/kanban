@@ -56,6 +56,33 @@ function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return adjustedDescriptor;
 }
 
+class TaskList {
+  hostElement: HTMLDivElement;
+  templateElement: HTMLTemplateElement;
+  element: HTMLElement;
+  constructor(private type: "todo" | "done") {
+    this.hostElement = document.getElementById("board")! as HTMLDivElement;
+    this.templateElement = document.getElementById(
+      "tasks-list"
+    )! as HTMLTemplateElement;
+    const clonedNode = this.templateElement.content.cloneNode(
+      true
+    )! as DocumentFragment;
+    this.element = clonedNode.firstElementChild! as HTMLElement;
+    this.element.id = `${this.type}-tasks`;
+    this.attach();
+    this.renderContent();
+  }
+  private renderContent() {
+    let id = `${this.type}-tasks-list`;
+    this.element.querySelector("ul")!.id = id;
+    this.element.querySelector("p")!.innerText = this.type.toUpperCase();
+  }
+  private attach() {
+    this.hostElement.insertAdjacentElement("beforeend", this.element);
+  }
+}
+
 class TaskInput {
   hostElement: HTMLDivElement;
   templateElement: HTMLTemplateElement;
@@ -141,3 +168,5 @@ class TaskInput {
 }
 
 let taskInput = new TaskInput();
+let todoTasks = new TaskList("todo");
+let doneTasks = new TaskList("done");
