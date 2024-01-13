@@ -8,7 +8,7 @@ interface validatable {
   max?: number;
 }
 interface State {
-  tasks: any[];
+  tasks: Task[];
 }
 
 // validation function
@@ -58,6 +58,20 @@ function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   };
   return adjustedDescriptor;
 }
+enum TaskStatus {
+  todo,
+  done,
+}
+
+class Task {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: TaskStatus
+  ) {}
+}
 
 class StateManager {
   private static instance: StateManager;
@@ -81,12 +95,13 @@ class StateManager {
     this.listeners.push(listenerFn);
   }
   addTask(title: string, description: string, numOfPeople: number): void {
-    let newTask = {
-      id: new Date(),
+    let newTask = new Task(
+      new Date().toString(),
       title,
       description,
-      people: numOfPeople,
-    };
+      numOfPeople,
+      TaskStatus.todo
+    );
     this.state.tasks.push(newTask);
     for (let listener of this.listeners) {
       listener(this.state.tasks.slice());
@@ -100,7 +115,7 @@ class TaskList {
   hostElement: HTMLDivElement;
   templateElement: HTMLTemplateElement;
   element: HTMLElement;
-  assignedTasks: any[];
+  assignedTasks: Task[];
   constructor(private type: "todo" | "done") {
     this.assignedTasks = [];
     this.hostElement = document.getElementById("board")! as HTMLDivElement;
