@@ -7,6 +7,9 @@ interface validatable {
   min?: number;
   max?: number;
 }
+interface State {
+  tasks: any[];
+}
 
 // validation function
 function validate(validatableInput: validatable): boolean {
@@ -56,11 +59,50 @@ function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return adjustedDescriptor;
 }
 
+class StateManager {
+  private static instance: StateManager;
+  private listeners: any[] = [];
+  private state: State = {
+    tasks: [],
+  };
+  private constructor() {
+    this.state = {
+      tasks: [],
+    };
+  }
+  static getInstance(): StateManager {
+    if (!StateManager.instance) {
+      StateManager.instance = new StateManager();
+    }
+
+    return StateManager.instance;
+  }
+  addListener(listenerFn: Function): void {
+    this.listeners.push(listenerFn);
+  }
+  addTask(title: string, description: string, numOfPeople: number): void {
+    let newTask = {
+      id: new Date(),
+      title,
+      description,
+      people: numOfPeople,
+    };
+    this.state.tasks.push(newTask);
+    for (let listener of this.listeners) {
+      listener(this.state.tasks.slice());
+    }
+  }
+}
+
+const stateInstance = StateManager.getInstance();
+
 class TaskList {
   hostElement: HTMLDivElement;
   templateElement: HTMLTemplateElement;
   element: HTMLElement;
+  assignedTasks: any[];
   constructor(private type: "todo" | "done") {
+    this.assignedTasks = [];
     this.hostElement = document.getElementById("board")! as HTMLDivElement;
     this.templateElement = document.getElementById(
       "tasks-list"
@@ -70,6 +112,10 @@ class TaskList {
     )! as DocumentFragment;
     this.element = clonedNode.firstElementChild! as HTMLElement;
     this.element.id = `${this.type}-tasks`;
+    stateInstance.addListener((tasks: any[]) => {
+      this.assignedTasks = tasks;
+      this.renderTasks();
+    });
     this.attach();
     this.renderContent();
   }
@@ -80,6 +126,17 @@ class TaskList {
   }
   private attach() {
     this.hostElement.insertAdjacentElement("beforeend", this.element);
+  }
+
+  private renderTasks() {
+    let listId = document.getElementById(
+      `${this.type}-tasks-list`
+    )! as HTMLUListElement;
+    for (let taskItem of this.assignedTasks) {
+      let listItem = document.createElement("li");
+      listItem.textContent = taskItem.title;
+      listId.appendChild(listItem);
+    }
   }
 }
 
@@ -155,7 +212,8 @@ class TaskInput {
     event.preventDefault();
     const info = this.gatherTaskInfo();
     if (Array.isArray(info)) {
-      console.log(info);
+      let [title, description, people] = info;
+      stateInstance.addTask(title, description, people);
       this.clearInfo();
     }
   }
