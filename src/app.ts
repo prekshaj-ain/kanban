@@ -73,9 +73,11 @@ class Task {
   ) {}
 }
 
+type Listener = (items: Task[]) => void;
+
 class StateManager {
   private static instance: StateManager;
-  private listeners: any[] = [];
+  private listeners: Listener[] = [];
   private state: State = {
     tasks: [],
   };
@@ -91,7 +93,7 @@ class StateManager {
 
     return StateManager.instance;
   }
-  addListener(listenerFn: Function): void {
+  addListener(listenerFn: Listener): void {
     this.listeners.push(listenerFn);
   }
   addTask(title: string, description: string, numOfPeople: number): void {
@@ -127,7 +129,7 @@ class TaskList {
     )! as DocumentFragment;
     this.element = clonedNode.firstElementChild! as HTMLElement;
     this.element.id = `${this.type}-tasks`;
-    stateInstance.addListener((tasks: any[]) => {
+    stateInstance.addListener((tasks: Task[]) => {
       this.assignedTasks = tasks;
       this.renderTasks();
     });
