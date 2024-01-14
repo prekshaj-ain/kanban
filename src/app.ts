@@ -98,7 +98,7 @@ class StateManager {
   }
   addTask(title: string, description: string, numOfPeople: number): void {
     let newTask = new Task(
-      new Date().toString(),
+      (+new Date()).toString(),
       title,
       description,
       numOfPeople,
@@ -147,6 +147,25 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   protected abstract renderContent(): void;
 }
 
+class TaskItem extends Component<HTMLUListElement, HTMLLIElement> {
+  private task: Task;
+  constructor(hostId: string, task: Task) {
+    super("single-task", hostId, false, task.id);
+    this.task = task;
+    this.configure();
+    this.renderContent();
+  }
+
+  protected configure(): void {}
+  protected renderContent(): void {
+    this.element.querySelector(".task-title")!.textContent = this.task.title;
+    this.element.querySelector(".task-people")!.textContent =
+      this.task.people.toString();
+    this.element.querySelector(".task-description")!.textContent =
+      this.task.description;
+  }
+}
+
 class TaskList extends Component<HTMLDivElement, HTMLElement> {
   assignedTasks: Task[];
   constructor(private type: "todo" | "done") {
@@ -181,9 +200,7 @@ class TaskList extends Component<HTMLDivElement, HTMLElement> {
     )! as HTMLUListElement;
     listId.innerText = "";
     for (let taskItem of this.assignedTasks) {
-      let listItem = document.createElement("li");
-      listItem.textContent = taskItem.title;
-      listId.appendChild(listItem);
+      new TaskItem(listId.id, taskItem);
     }
   }
 }
@@ -213,13 +230,13 @@ class TaskInput extends Component<HTMLDivElement, HTMLDivElement> {
       value: title,
       required: true,
       minLength: 3,
-      maxLength: 20,
+      maxLength: 40,
     };
     const descriptionValidatable: validatable = {
       value: description,
       required: true,
       minLength: 5,
-      maxLength: 40,
+      maxLength: 50,
     };
     const peopleValidatable: validatable = {
       value: +people,
