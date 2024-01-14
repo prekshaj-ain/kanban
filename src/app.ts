@@ -113,22 +113,55 @@ class StateManager {
 
 const stateInstance = StateManager.getInstance();
 
-class TaskList {
-  hostElement: HTMLDivElement;
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   templateElement: HTMLTemplateElement;
-  element: HTMLElement;
-  assignedTasks: Task[];
-  constructor(private type: "todo" | "done") {
-    this.assignedTasks = [];
-    this.hostElement = document.getElementById("board")! as HTMLDivElement;
+  hostElement: T;
+  element: U;
+  constructor(
+    private templateId: string,
+    private hostElementId: string,
+    private insertAtBegin: boolean,
+    private newElementId?: string
+  ) {
+    this.hostElement = document.getElementById(this.hostElementId)! as T;
     this.templateElement = document.getElementById(
-      "tasks-list"
+      this.templateId
     )! as HTMLTemplateElement;
     const clonedNode = this.templateElement.content.cloneNode(
       true
     )! as DocumentFragment;
-    this.element = clonedNode.firstElementChild! as HTMLElement;
-    this.element.id = `${this.type}-tasks`;
+    this.element = clonedNode.firstElementChild! as U;
+    if (typeof this.newElementId == "string") {
+      this.element.id = this.newElementId;
+    }
+    this.attach(this.insertAtBegin);
+  }
+
+  private attach(insertAtBegin: boolean) {
+    this.hostElement.insertAdjacentElement(
+      insertAtBegin ? "afterbegin" : "beforeend",
+      this.element
+    );
+  }
+  protected abstract configure(): void;
+  protected abstract renderContent(): void;
+}
+
+class TaskList extends Component<HTMLDivElement, HTMLElement> {
+  assignedTasks: Task[];
+  constructor(private type: "todo" | "done") {
+    super("tasks-list", "board", false, `${type}-tasks`);
+    this.assignedTasks = [];
+    this.configure();
+    this.renderContent();
+  }
+  protected renderContent(): void {
+    let id = `${this.type}-tasks-list`;
+    this.element.querySelector("ul")!.id = id;
+    this.element.querySelector("p")!.innerText = this.type.toUpperCase();
+  }
+
+  protected configure(): void {
     stateInstance.addListener((tasks: Task[]) => {
       let relevantTask = tasks.filter((task) => {
         if (this.type == "todo") {
@@ -140,16 +173,6 @@ class TaskList {
       this.assignedTasks = relevantTask;
       this.renderTasks();
     });
-    this.attach();
-    this.renderContent();
-  }
-  private renderContent() {
-    let id = `${this.type}-tasks-list`;
-    this.element.querySelector("ul")!.id = id;
-    this.element.querySelector("p")!.innerText = this.type.toUpperCase();
-  }
-  private attach() {
-    this.hostElement.insertAdjacentElement("beforeend", this.element);
   }
 
   private renderTasks() {
@@ -165,22 +188,12 @@ class TaskList {
   }
 }
 
-class TaskInput {
-  hostElement: HTMLDivElement;
-  templateElement: HTMLTemplateElement;
-  element: HTMLDivElement;
+class TaskInput extends Component<HTMLDivElement, HTMLDivElement> {
   titleInputElement: HTMLInputElement;
   descriptionInputElement: HTMLInputElement;
   peopleInputElement: HTMLInputElement;
   constructor() {
-    this.hostElement = document.getElementById("root")! as HTMLDivElement;
-    this.templateElement = document.getElementById(
-      "task-input"
-    )! as HTMLTemplateElement;
-    const clonedNode = this.templateElement.content.cloneNode(
-      true
-    ) as DocumentFragment;
-    this.element = clonedNode.firstElementChild! as HTMLDivElement;
+    super("task-input", "root", true);
     this.titleInputElement = this.element.querySelector(
       "#title"
     )! as HTMLInputElement;
@@ -191,7 +204,6 @@ class TaskInput {
       "#people"
     )! as HTMLInputElement;
     this.configure();
-    this.attach();
   }
   private gatherTaskInfo(): [string, string, number] | void {
     const title = this.titleInputElement.value;
@@ -242,11 +254,11 @@ class TaskInput {
       this.clearInfo();
     }
   }
-  private configure() {
+
+  protected renderContent(): void {}
+
+  protected configure(): void {
     this.element.addEventListener("submit", this.submitHandler);
-  }
-  private attach() {
-    this.hostElement.insertAdjacentElement("afterbegin", this.element);
   }
 }
 
