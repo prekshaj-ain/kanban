@@ -130,7 +130,14 @@ class TaskList {
     this.element = clonedNode.firstElementChild! as HTMLElement;
     this.element.id = `${this.type}-tasks`;
     stateInstance.addListener((tasks: Task[]) => {
-      this.assignedTasks = tasks;
+      let relevantTask = tasks.filter((task) => {
+        if (this.type == "todo") {
+          return task.status === TaskStatus.todo;
+        } else {
+          return task.status === TaskStatus.done;
+        }
+      });
+      this.assignedTasks = relevantTask;
       this.renderTasks();
     });
     this.attach();
@@ -149,6 +156,7 @@ class TaskList {
     let listId = document.getElementById(
       `${this.type}-tasks-list`
     )! as HTMLUListElement;
+    listId.innerText = "";
     for (let taskItem of this.assignedTasks) {
       let listItem = document.createElement("li");
       listItem.textContent = taskItem.title;
