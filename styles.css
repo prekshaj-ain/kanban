@@ -8,6 +8,7 @@
   --border: #464650;
 
   --fs-1: 2rem;
+  --fs-2: 1rem;
   --fs-3: 0.8rem;
 }
 
@@ -19,6 +20,7 @@
 
 * {
   margin: 0;
+  padding: 0;
   font: inherit;
   font-family: var(--ff);
 }
@@ -104,7 +106,6 @@ textarea {
 }
 .tasks {
   /* border: 1px solid var(--border); */
-  border-radius: 30px;
   min-width: 250px;
   padding: 10px;
   font-size: var(--fs-3);
@@ -112,7 +113,32 @@ textarea {
 .tasks > header {
   padding: 10px;
 }
+.task-item {
+  list-style: none;
+  background-color: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
+.task-item > div {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.task-title {
+  font-weight: 600;
+}
+.task-description {
+  color: var(--text-secondary);
+}
 .customized-scrollbar {
   overflow: auto;
 }

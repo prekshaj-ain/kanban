@@ -36,19 +36,25 @@
       </div>
     </template>
     <template id="single-task">
-      <li></li>
+      <li class="task-item">
+        <div>
+          <h2 class="task-title"></h2>
+          <div class="task-people"></div>
+        </div>
+        <p class="task-description"></p>
+      </li>
     </template>
     <template id="tasks-list">
       <section class="tasks">
         <header>
           <p></p>
         </header>
-        <ul></ul>
+        <ul class="task-list"></ul>
       </section>
     </template>
     <nav>
       <h1 id="heading">Kanban</h1>
-      <button class="btn create-task-btn">+ Add New Task</button>
+      <!-- <button class="btn create-task-btn">+ Add New Task</button> -->
     </nav>
     <div id="app">
       <div id="root"></div>
