@@ -11,6 +11,18 @@ interface State {
   tasks: Task[];
 }
 
+// drag and drop interface
+interface draggable {
+  dragStartHandler(event: DragEvent): void;
+  dragEndHandler(event: DragEvent): void;
+}
+
+interface dropTarget {
+  dragOverHandler(event: DragEvent): void;
+  dropHandler(event: DragEvent): void;
+  dragLeaveHandler(event: DragEvent): void;
+}
+
 // validation function
 function validate(validatableInput: validatable): boolean {
   let isValid: boolean = true;
@@ -147,7 +159,10 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   protected abstract renderContent(): void;
 }
 
-class TaskItem extends Component<HTMLUListElement, HTMLLIElement> {
+class TaskItem
+  extends Component<HTMLUListElement, HTMLLIElement>
+  implements draggable
+{
   private task: Task;
   constructor(hostId: string, task: Task) {
     super("single-task", hostId, false, task.id);
@@ -155,8 +170,19 @@ class TaskItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.configure();
     this.renderContent();
   }
+  @Autobind
+  dragStartHandler(event: DragEvent): void {
+    console.log(event);
+  }
+  @Autobind
+  dragEndHandler(event: DragEvent): void {
+    console.log(event);
+  }
 
-  protected configure(): void {}
+  protected configure(): void {
+    this.element.addEventListener("dragstart", this.dragStartHandler);
+    this.element.addEventListener("dragend", this.dragEndHandler);
+  }
   protected renderContent(): void {
     this.element.querySelector(".task-title")!.textContent = this.task.title;
     this.element.querySelector(".task-people")!.textContent =
