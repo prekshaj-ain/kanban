@@ -117,6 +117,18 @@ class StateManager {
       TaskStatus.todo
     );
     this.state.tasks.push(newTask);
+    this.notify();
+  }
+
+  moveProject(taskId: string, taskStatus: TaskStatus): void {
+    const task = this.state.tasks.find((task) => task.id == taskId);
+    if (task && task.status !== taskStatus) {
+      task.status = taskStatus;
+      this.notify();
+    }
+  }
+
+  private notify(): void {
     for (let listener of this.listeners) {
       listener(this.state.tasks.slice());
     }
@@ -172,11 +184,13 @@ class TaskItem
   }
   @Autobind
   dragStartHandler(event: DragEvent): void {
-    console.log(event);
+    event.dataTransfer!.setData("text/plain", this.task.id);
+    event.dataTransfer!.effectAllowed = "move";
+    (<Element>event.target).classList.add("draggable");
   }
   @Autobind
   dragEndHandler(event: DragEvent): void {
-    console.log(event);
+    (<Element>event.target).classList.remove("draggable");
   }
 
   protected configure(): void {
@@ -192,13 +206,40 @@ class TaskItem
   }
 }
 
-class TaskList extends Component<HTMLDivElement, HTMLElement> {
+class TaskList
+  extends Component<HTMLDivElement, HTMLElement>
+  implements dropTarget
+{
   assignedTasks: Task[];
   constructor(private type: "todo" | "done") {
     super("tasks-list", "board", false, `${type}-tasks`);
     this.assignedTasks = [];
     this.configure();
     this.renderContent();
+  }
+
+  @Autobind
+  dragOverHandler(event: DragEvent): void {
+    if (event.dataTransfer && event.dataTransfer.types[0] == "text/plain") {
+      this.element.classList.add("droppable");
+      event.preventDefault();
+    }
+  }
+
+  @Autobind
+  dragLeaveHandler(_: DragEvent): void {
+    this.element.classList.remove("droppable");
+  }
+
+  @Autobind
+  dropHandler(event: DragEvent): void {
+    this.element.classList.remove("droppable");
+
+    const taskId = event.dataTransfer?.getData("text/plain")!;
+    stateInstance.moveProject(
+      taskId,
+      this.type === "todo" ? TaskStatus.todo : TaskStatus.done
+    );
   }
   protected renderContent(): void {
     let id = `${this.type}-tasks-list`;
@@ -207,6 +248,9 @@ class TaskList extends Component<HTMLDivElement, HTMLElement> {
   }
 
   protected configure(): void {
+    this.element.addEventListener("dragover", this.dragOverHandler);
+    this.element.addEventListener("drop", this.dropHandler);
+    this.element.addEventListener("dragleave", this.dragLeaveHandler);
     stateInstance.addListener((tasks: Task[]) => {
       let relevantTask = tasks.filter((task) => {
         if (this.type == "todo") {
